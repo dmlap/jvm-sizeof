@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 public class SizeOf {
   private static final Logger LOG = Logger
       .getLogger("com.github.dmlap.sizeof.SizeOf");
-  private static final Map<Class<?>, Long> TYPES = new HashMap<Class<?>, Long>();
   private static Instrumentation instrumentation;
 
   /**
@@ -25,14 +24,6 @@ public class SizeOf {
     assert instrumentation == null : "SizeOf should not be re-initialized.";
     assert inst != null : "SizeOf must be initialized with non-null instrumentation. Make sure you've configured javaagent correctly";
     SizeOf.instrumentation = inst;
-    TYPES.put(boolean.class, 1L);
-    TYPES.put(byte.class, 1L);
-    TYPES.put(short.class, 2L);
-    TYPES.put(int.class, 4L);
-    TYPES.put(long.class, 8L);
-    TYPES.put(float.class, 4L);
-    TYPES.put(double.class, 8L);
-    TYPES.put(char.class, 2L);
     LOG.info("-- sizeof loaded --");
   }
 
@@ -97,8 +88,7 @@ public class SizeOf {
           try {
             Class<?> type = field.getType();
             // primitive types
-            if(TYPES.containsKey(type)) {
-              result += TYPES.get(type);
+            if(type.isPrimitive()) {
               continue;
             }
             // reference types
