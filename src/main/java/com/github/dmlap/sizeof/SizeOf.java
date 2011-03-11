@@ -3,6 +3,7 @@ package com.github.dmlap.sizeof;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
@@ -88,6 +89,9 @@ public class SizeOf {
         continue;
       }
       for (Field field : nodeClass.getDeclaredFields()) {
+        if (Modifier.isStatic(field.getModifiers())) {
+          continue;
+        }
         field.setAccessible(true);
         try {
           Class<?> type = field.getType();
