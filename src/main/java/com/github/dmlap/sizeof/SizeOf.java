@@ -88,39 +88,42 @@ public class SizeOf {
         }
         continue;
       }
-      for (Field field : nodeClass.getDeclaredFields()) {
-        if (Modifier.isStatic(field.getModifiers())) {
-          continue;
+      while (nodeClass != null) {       // traverse up until we hit Object
+        for (Field field : nodeClass.getDeclaredFields()) {
+          if (Modifier.isStatic(field.getModifiers())) {
+            continue;
+          }
+          field.setAccessible(true);
+          try {
+            Class<?> type = field.getType();
+            // primitive types
+            if(TYPES.containsKey(type)) {
+              result += TYPES.get(type);
+              continue;
+            }
+            // reference types
+            Object value = field.get(node);
+            if(value == null) {
+              continue;
+            }
+            if(references.containsKey(value)) {
+              continue;
+            }
+            if (isSharedFlyweight(value)) {
+              continue;
+            }
+            unprocessed.put(value, null);
+            references.put(value, null);
+            result += sizeof(value);
+          } catch (IllegalArgumentException e) {
+            throw new SizeOfException("Error determing the size of field "
+                                      + field.getName() + " on " + target.getClass().getSimpleName(), e);
+          } catch (IllegalAccessException e) {
+            throw new SizeOfException("Error determing the size of field "
+                                      + field.getName() + " on " + target.getClass().getSimpleName(), e);
+          }
         }
-        field.setAccessible(true);
-        try {
-          Class<?> type = field.getType();
-          // primitive types
-          if(TYPES.containsKey(type)) {
-            result += TYPES.get(type);
-            continue;
-          }
-          // reference types
-          Object value = field.get(node);
-          if(value == null) {
-            continue;
-          }
-          if(references.containsKey(value)) {
-            continue;
-          }
-          if (isSharedFlyweight(value)) {
-            continue;
-          }
-          unprocessed.put(value, null);
-          references.put(value, null);
-          result += sizeof(value);
-        } catch (IllegalArgumentException e) {
-          throw new SizeOfException("Error determing the size of field "
-                                    + field.getName() + " on " + target.getClass().getSimpleName(), e);
-        } catch (IllegalAccessException e) {
-          throw new SizeOfException("Error determing the size of field "
-                                    + field.getName() + " on " + target.getClass().getSimpleName(), e);
-        }
+        nodeClass = nodeClass.getSuperclass();
       }
     } while(!unprocessed.isEmpty());
     return result;
