@@ -24,20 +24,20 @@ public class SizeOf {
     assert instrumentation == null : "SizeOf should not be re-initialized.";
     assert inst != null : "SizeOf must be initialized with non-null instrumentation. Make sure you've configured javaagent correctly";
     SizeOf.instrumentation = inst;
-    TYPES.put(boolean.class, sizeof(true));
-    TYPES.put(byte.class, sizeof((byte) 0));
-    TYPES.put(short.class, sizeof((short) 0));
-    TYPES.put(int.class, sizeof(0));
-    TYPES.put(long.class, sizeof(0L));
-    TYPES.put(float.class, sizeof(0.0F));
-    TYPES.put(double.class, sizeof(0.0D));
-    TYPES.put(char.class, sizeof('a'));
+    TYPES.put(boolean.class, 1L);
+    TYPES.put(byte.class, 1L);
+    TYPES.put(short.class, 2L);
+    TYPES.put(int.class, 4L);
+    TYPES.put(long.class, 8L);
+    TYPES.put(float.class, 4L);
+    TYPES.put(double.class, 8L);
+    TYPES.put(char.class, 2L);
     LOG.info("-- sizeof loaded --");
   }
 
   /**
    * Returns an implementation-specific approximation of the amount of storage
-   * consumed by the specified {@link Object}.
+   * consumed by the specified {@link Object} (in bytes).
    * 
    * @param target
    *          - the {@link Object} to query

@@ -20,7 +20,7 @@ public class SizeOfTest {
   public static void setupInstrumentation() {
     instrumentation = context.mock(Instrumentation.class);
     context.checking(new Expectations() {{
-      exactly(8).of(instrumentation).getObjectSize(with(anything()));
+      exactly(0).of(instrumentation).getObjectSize(with(anything()));
     }});
     SizeOf.premain("", instrumentation);
   }
