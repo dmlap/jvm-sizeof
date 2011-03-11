@@ -108,6 +108,9 @@ public class SizeOf {
           if(references.containsKey(value)) {
             continue;
           }
+          if (isSharedFlyweight(value)) {
+            continue;
+          }
           unprocessed.put(value, null);
           references.put(value, null);
           result += sizeof(value);
@@ -121,5 +124,36 @@ public class SizeOf {
       }
     } while(!unprocessed.isEmpty());
     return result;
+  }
+  
+  /**
+  * Returns true if this is a well-known shared flyweight.
+  * For example, interned Strings, Booleans and Number objects.
+  * 
+  * thanks to Dr. Heinz Kabutz 
+  * see http://www.javaspecialists.co.za/archive/Issue142.html
+  */
+  private static boolean isSharedFlyweight(Object obj) {
+  	  // optimization - all of our flyweights are Comparable
+  	  if (obj instanceof Comparable) {
+  	  	  if (obj instanceof Enum) {
+  	  	  	  return true;
+  	  	  } else if (obj instanceof String) {
+  	  	  	  return (obj == ((String) obj).intern());
+  	  	  } else if (obj instanceof Boolean) {
+  	  	  	  return (obj == Boolean.TRUE || obj == Boolean.FALSE);
+  	  	  } else if (obj instanceof Integer) {
+  	  	  	  return (obj == Integer.valueOf((Integer) obj));
+  	  	  } else if (obj instanceof Short) {
+  	  	  	  return (obj == Short.valueOf((Short) obj));
+  	  	  } else if (obj instanceof Byte) {
+  	  	  	  return (obj == Byte.valueOf((Byte) obj));
+  	  	  } else if (obj instanceof Long) {
+  	  	  	  return (obj == Long.valueOf((Long) obj));
+  	  	  } else if (obj instanceof Character) {
+  	  	  	  return (obj == Character.valueOf((Character) obj));
+  	  	  }
+  	  }
+  	  return false;
   }
 }
