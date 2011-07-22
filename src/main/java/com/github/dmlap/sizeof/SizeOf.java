@@ -4,10 +4,8 @@ import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
+import java.util.ArrayDeque;
 import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.logging.Logger;
 
 public class SizeOf {
@@ -53,12 +51,10 @@ public class SizeOf {
     long result = sizeof(target);
     IdentityHashMap<Object, Void> references = new IdentityHashMap<Object, Void>();
     references.put(target, null);
-    IdentityHashMap<Object, Void> unprocessed = new IdentityHashMap<Object, Void>();
-    unprocessed.put(target, null);
+    ArrayDeque<Object> unprocessed = new ArrayDeque<Object>();
+    unprocessed.addFirst(target);
     do {
-      Iterator<Object> itr = unprocessed.keySet().iterator();
-      Object node = itr.next();
-      itr.remove();
+      Object node = unprocessed.removeFirst();
       Class<?> nodeClass = node.getClass();
       if (nodeClass.isArray()) {
         if (node.getClass().getComponentType().isPrimitive()) {
@@ -73,7 +69,7 @@ public class SizeOf {
           if (references.containsKey(elem)) {
             continue;
           }
-          unprocessed.put(elem, null);
+          unprocessed.addFirst(elem);
           references.put(elem, null);
           result += sizeof(elem);
         }
@@ -102,7 +98,7 @@ public class SizeOf {
             if (isSharedFlyweight(value)) {
               continue;
             }
-            unprocessed.put(value, null);
+            unprocessed.addFirst(value);
             references.put(value, null);
             result += sizeof(value);
           } catch (IllegalArgumentException e) {
